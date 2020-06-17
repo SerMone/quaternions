@@ -7,7 +7,7 @@
 class quaternions {
   std::vector<double> comp;
   double rot_ang;
-  double comp_err, alg_err;
+  double comp_err;
 
   static double set_rot_comp(double angle_deg);
 
@@ -42,11 +42,11 @@ public:
 
   quaternions operator*(quaternions q) const;
 
-  double quat_module();
+  double quat_module() const;
 
-  double vector_module();
+  double vector_module() const;
 
-  quaternions normalize();
+  quaternions normalize() const;
 
   quaternions conjugate() const;
 

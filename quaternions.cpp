@@ -40,33 +40,38 @@ std::ostream quaternions::&operator<<(std::ostream &os,
 // operations with quaternions
 
 quaternions quaternions::operator*(quaternions q) const {
-  double a;
-  std::vector<double> c(3);
-  a = rot_ang * q.rot_ang - x() * q.x() - y() * q.y() - z() * q.z();
+  quaternions ris;
 
-  c[0] = rot_ang * q.x() + x() * q.rot_ang + y() * q.z() - z() * q.y();
+  ris.rot_ang = rot_ang * q.rot_ang - x() * q.x() - y() * q.y() - z() * q.z();
 
-  c[1] = rot_ang * q.y() + y() * q.rot_ang + z() * q.x() - x() * q.z();
+  ris.comp[0] = rot_ang * q.x() + x() * q.rot_ang + y() * q.z() - z() * q.y();
 
-  c[2] = rot_ang * q.z() + z() * q.rot_ang + x() * q.y() - y() * q.x();
-  return quaternions(c, a);
+  ris.comp[1] = rot_ang * q.y() + y() * q.rot_ang + z() * q.x() - x() * q.z();
+
+  ris.comp[2] = rot_ang * q.z() + z() * q.rot_ang + x() * q.y() - y() * q.x();
+
+  ris.comp_err =
+      (std::fabs(quat_module()*q.quat_module() - ris.quat_module())) / ris.quat_module() +
+      comp_err + q.comp_err;
+
+  return ris;
 }
 
-double quaternions::quat_module() {
+double quaternions::quat_module() const{
   /*  std::cout << "modulo"
               << sqrt(rot_ang * rot_ang + x() * x() + y() * y() + z() * z())
               << std::endl;*/
   return std::sqrt(rot_ang * rot_ang + x() * x() + y() * y() + z() * z());
 }
 
-double quaternions::vector_module() {
+double quaternions::vector_module() const{
   /*  std::cout << "modulo"
               << sqrt(x() * x() + y() * y() + z() * z())
               << std::endl;*/
   return std::sqrt(x() * x() + y() * y() + z() * z());
 }
 
-quaternions quaternions::normalize() {
+quaternions quaternions::normalize() const{
   double norm_par;
   std::vector<double> vec(3);
   norm_par =
@@ -95,14 +100,12 @@ quaternions quaternions::execute_rot(quaternions axis) {
   norm = axis.normalize();
   ris = norm.conjugate() * (*this) * norm;
 
-  std::cout << comp_err << std::endl;
+  //std::cout << comp_err << std::endl;
 
   // relative computational error estimation
-  ris.comp_err =
-      (std::fabs(quat_module() - ris.quat_module())) / ris.quat_module() +
-      comp_err;
 
-  std::cout << ris.comp_err << std::endl;
+
+  //std::cout << ris.comp_err << std::endl;
 
   ris.rot_ang = 0;
   return ris;
@@ -176,12 +179,13 @@ quaternions quaternions::rot_spinning_top
           ist_rot.comp[j] +
           t / n / 6 * (vec[0][j] + 2 * vec[1][j] + 2 * vec[2][j] + vec[3][j]);
     }
+
     ist_rot.set_rotation_deg(ist_rot.vector_module() * 180 / M_PI * t / n);
 
+    ist_rot.comp_err = dt * dt * dt * dt * k / ist_rot.quat_module();
     // std::cout << "\nquesto" << ist_rot << std::endl;
+    obj = obj.execute_rot(ist_rot);
 
-    obj = execute_rot(ist_rot);
-    obj.comp_err = obj.comp_err + dt * dt * dt * dt * k / quat_module();
   }
   return obj;
 }
