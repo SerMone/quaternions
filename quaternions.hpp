@@ -1,8 +1,8 @@
 #ifndef QUATERNIONS_H
 #define QUATERNIONS_H
-#include "in_out.hpp"
-#include <vector>
 
+#include <ostream>
+#include <vector>
 
 class quaternions {
   std::vector<double> comp;

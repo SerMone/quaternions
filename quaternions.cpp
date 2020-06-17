@@ -1,5 +1,10 @@
+
 #include "quaternions.hpp"
+#include "in_out.hpp"
+
 #include <iomanip>
+#include <iostream>
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 
@@ -29,8 +34,7 @@ void quaternions::set_rotation_deg(double angle_deg) {
 
 // print quaternion
 
-std::ostream quaternions::&operator<<(std::ostream &os,
-                                             const quaternions q) {
+std::ostream& operator<<(std::ostream &os, const quaternions q) {
   std::cout << std::setprecision(4) << "\n"
             << "[" << q.rot_ang << "; " << q.x() << "; " << q.y() << "; "
             << q.z() << "]  r_e = " << q.comp_err * 100 << " %" << std::endl;
